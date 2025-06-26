@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solicitud de Crédito - Financiera Mexicana</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        
+        .form-section {
+            padding: 40px;
+        }
+        
+        .section-title {
+            color: #333;
+            font-size: 1.3em;
+            margin-bottom: 20px;
+            font-weight: 600;
+            border-bottom: 2px solid #4facfe;
+            padding-bottom: 10px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+        
+        .required {
+            color: #e74c3c;
+        }
+        
+        .urgency-options {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        .urgency-option {
+            position: relative;
+        }
+        
+        .urgency-option input[type="radio"] {
+            display: none;
+        }
+        
+        .urgency-option label {
+            display: block;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #fafbfc;
+        }
+        
+        .urgency-option input[type="radio"]:checked + label {
+            border-color: #4facfe;
+            background: #4facfe;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+        
+        .amount-slider {
+            margin: 20px 0;
+        }
+        
+        .slider-container {
+            position: relative;
+            margin: 20px 0;
+        }
+        
+        .slider {
+            width: 100%;
+            height: 8px;
+            border-radius: 5px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+        
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #4facfe;
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(79, 172, 254, 0.3);
+        }
+        
+        .amount-display {
+            text-align: center;
+            font-size: 2em;
+            font-weight: bold;
+            color: #4facfe;
+            margin: 15px 0;
+        }
+        
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9em;
+            color: #666;
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 18px;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            border-radius: 15px;
+            font-size: 1.2em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(79, 172, 254, 0.4);
+        }
+        
+        .info-box {
+            background: #f8f9ff;
+            border: 1px solid #e3e8ff;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .info-box h3 {
+            color: #4f46e5;
+            margin-bottom: 10px;
+        }
+        
+        .info-box ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .info-box li {
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .info-box li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .form-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Financiera Mexicana</h1>
+            <p>Tu crédito en 24 horas - Solicita ahora</p>
+        </div>
+        
+        <div class="form-section">
+            <div class="info-box">
+                <h3>🚀 ¿Por qué elegirnos?</h3>
+                <ul>
+                    <li>Respuesta en 24 horas</li>
+                    <li>Pocos requisitos</li>
+                    <li>Aceptamos mal historial crediticio</li>
+                    <li>Proceso 100% seguro</li>
+                </ul>
+            </div>
+            
+            <form id="creditForm">
+                <h2 class="section-title">📋 Datos Personales</h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nombre">Nombre Completo <span class="required">*</span></label>
+                        <input type="text" id="nombre" name="nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono <span class="required">*</span></label>
+                        <input type="tel" id="telefono" name="telefono" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">Correo Electrónico <span class="required">*</span></label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edad">Edad <span class="required">*</span></label>
+                        <input type="number" id="edad" name="edad" min="18" max="80" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="direccion">Dirección Completa <span class="required">*</span></label>
+                    <textarea id="direccion" name="direccion" rows="3" required></textarea>
+                </div>
+                
+                <h2 class="section-title">💼 Información Laboral</h2>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="ocupacion">Ocupación <span class="required">*</span></label>
+                        <input type="text" id="ocupacion" name="ocupacion" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="ingresos">Ingresos Mensuales <span class="required">*</span></label>
+                        <select id="ingresos" name="ingresos" required>
+                            <option value="">Selecciona tu rango</option>
+                            <option value="5000-10000">$5,000 - $10,000</option>
+                            <option value="10000-20000">$10,000 - $20,000</option>
+                            <option value="20000-30000">$20,000 - $30,000</option>
+                            <option value="30000-50000">$30,000 - $50,000</option>
+                            <option value="50000+">Más de $50,000</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <h2 class="section-title">💰 Detalles del Crédito</h2>
+                
+                <div class="form-group">
+                    <label for="monto">Monto Solicitado</label>
+                    <div class="amount-slider">
+                        <div class="amount-display" id="amountDisplay">$10,000</div>
+                        <input type="range" id="monto" name="monto" min="5000" max="150000" value="10000" step="1000" class="slider">
+                        <div class="slider-labels">
+                            <span>$5,000</span>
+                            <span>$150,000</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>¿Para qué necesitas el crédito? <span class="required">*</span></label>
+                    <div class="urgency-options">
+                        <div class="urgency-option">
+                            <input type="radio" id="negocio" name="proposito" value="negocio" required>
+                            <label for="negocio">🚀 Iniciar Negocio</label>
+                        </div>
+                        <div class="urgency-option">
+                            <input type="radio" id="medico" name="proposito" value="medico" required>
+                            <label for="medico">🏥 Urgencia Médica</label>
+                        </div>
+                        <div class="urgency-option">
+                            <input type="radio" id="educacion" name="proposito" value="educacion" required>
+                            <label for="educacion">📚 Educación</label>
+                        </div>
+                        <div class="urgency-option">
+                            <input type="radio" id="hogar" name="proposito" value="hogar" required>
+                            <label for="hogar">🏠 Mejoras Hogar</label>
+                        </div>
+                        <div class="urgency-option">
+                            <input type="radio" id="deudas" name="proposito" value="deudas" required>
+                            <label for="deudas">💳 Pagar Deudas</label>
+                        </div>
+                        <div class="urgency-option">
+                            <input type="radio" id="otro" name="proposito" value="otro" required>
+                            <label for="otro">📝 Otro</label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="comentarios">Comentarios Adicionales</label>
+                    <textarea id="comentarios" name="comentarios" rows="4" placeholder="Cuéntanos más detalles sobre tu situación..."></textarea>
+                </div>
+                
+                <button type="submit" class="submit-btn">Enviar Solicitud 🚀</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- EmailJS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/emailjs-com/3.2.0/email.min.js"></script>
+    
+    <script>
+        // Inicializar EmailJS (CAMBIAR POR TUS DATOS)
+        emailjs.init("TU_PUBLIC_KEY_AQUI"); // Reemplazar con tu Public Key de EmailJS
+        
+        // Slider para el monto
+        const slider = document.getElementById('monto');
+        const amountDisplay = document.getElementById('amountDisplay');
+        
+        slider.addEventListener('input', function() {
+            const amount = parseInt(this.value).toLocaleString('es-MX');
+            amountDisplay.textContent = '
+</body>
+</html> + amount;
+        });
+        
+        // Manejo del formulario
+        document.getElementById('creditForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.querySelector('.submit-btn');
+            const originalText = submitBtn.textContent;
+            
+            // Cambiar botón a "enviando"
+            submitBtn.textContent = 'Enviando... ⏳';
+            submitBtn.disabled = true;
+            
+            // Recopilar datos del formulario
+            const formData = new FormData(this);
+            const templateParams = {};
+            
+            for (let [key, value] of formData.entries()) {
+                templateParams[key] = value;
+            }
+            
+            // Agregar el monto del slider formateado
+            templateParams.monto = '
+</body>
+</html> + parseInt(slider.value).toLocaleString('es-MX');
+            
+            // Enviar email usando EmailJS
+            emailjs.send(
+                'TU_SERVICE_ID_AQUI', // Reemplazar con tu Service ID
+                'TU_TEMPLATE_ID_AQUI', // Reemplazar con tu Template ID
+                templateParams
+            )
+            .then(function(response) {
+                console.log('Email enviado exitosamente!', response.status, response.text);
+                alert('¡Solicitud enviada exitosamente! Te contactaremos en las próximas 24 horas.');
+                document.getElementById('creditForm').reset();
+                amountDisplay.textContent = '$10,000';
+                slider.value = 10000;
+            })
+            .catch(function(error) {
+                console.error('Error al enviar email:', error);
+                alert('Hubo un error al enviar la solicitud. Por favor intenta de nuevo o contáctanos por WhatsApp.');
+            })
+            .finally(function() {
+                // Restaurar botón
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            });
+        });
+    </script>
+</body>
+</html>
