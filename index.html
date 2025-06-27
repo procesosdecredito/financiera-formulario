@@ -101,6 +101,18 @@
             color: #e74c3c;
         }
         
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .input-error {
+            border-color: #e74c3c !important;
+            background-color: #fef2f2 !important;
+        }
+        
         .urgency-options {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -164,6 +176,16 @@
             box-shadow: 0 2px 10px rgba(79, 172, 254, 0.3);
         }
         
+        .slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #4facfe;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 10px rgba(79, 172, 254, 0.3);
+        }
+        
         .amount-display {
             text-align: center;
             font-size: 2em;
@@ -194,9 +216,15 @@
             letter-spacing: 1px;
         }
         
-        .submit-btn:hover {
+        .submit-btn:hover:not(:disabled) {
             transform: translateY(-3px);
             box-shadow: 0 10px 25px rgba(79, 172, 254, 0.4);
+        }
+        
+        .submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
         }
         
         .info-box {
@@ -231,6 +259,25 @@
             font-weight: bold;
         }
         
+        .success-message {
+            background: #d1fae5;
+            border: 1px solid #a7f3d0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+            display: none;
+        }
+        
+        .success-message h3 {
+            color: #065f46;
+            margin-bottom: 10px;
+        }
+        
+        .success-message p {
+            color: #047857;
+        }
+        
         @media (max-width: 768px) {
             .form-row {
                 flex-direction: column;
@@ -243,6 +290,10 @@
             
             .form-section {
                 padding: 20px;
+            }
+            
+            .urgency-options {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -265,34 +316,44 @@
                 </ul>
             </div>
             
-            <form id="creditForm">
+            <div class="success-message" id="successMessage">
+                <h3>🎉 ¡Solicitud Enviada Exitosamente!</h3>
+                <p>Te contactaremos en las próximas 24 horas.</p>
+            </div>
+            
+            <form id="creditForm" novalidate>
                 <h2 class="section-title">📋 Datos Personales</h2>
                 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="nombre">Nombre Completo <span class="required">*</span></label>
-                        <input type="text" id="nombre" name="nombre" required>
+                        <input type="text" id="nombre" name="nombre" required aria-describedby="nombre-error">
+                        <div class="error-message" id="nombre-error">Por favor ingresa tu nombre completo</div>
                     </div>
                     <div class="form-group">
                         <label for="telefono">Teléfono <span class="required">*</span></label>
-                        <input type="tel" id="telefono" name="telefono" required>
+                        <input type="tel" id="telefono" name="telefono" pattern="[0-9]{10}" required aria-describedby="telefono-error" placeholder="10 dígitos">
+                        <div class="error-message" id="telefono-error">Ingresa un teléfono válido de 10 dígitos</div>
                     </div>
                 </div>
                 
                 <div class="form-row">
                     <div class="form-group">
                         <label for="email">Correo Electrónico <span class="required">*</span></label>
-                        <input type="email" id="email" name="email" required>
+                        <input type="email" id="email" name="email" required aria-describedby="email-error" placeholder="ejemplo@correo.com">
+                        <div class="error-message" id="email-error">Ingresa un correo electrónico válido</div>
                     </div>
                     <div class="form-group">
                         <label for="edad">Edad <span class="required">*</span></label>
-                        <input type="number" id="edad" name="edad" min="18" max="80" required>
+                        <input type="number" id="edad" name="edad" min="18" max="80" required aria-describedby="edad-error">
+                        <div class="error-message" id="edad-error">La edad debe estar entre 18 y 80 años</div>
                     </div>
                 </div>
                 
                 <div class="form-group">
                     <label for="direccion">Dirección Completa <span class="required">*</span></label>
-                    <textarea id="direccion" name="direccion" rows="3" required></textarea>
+                    <textarea id="direccion" name="direccion" rows="3" required aria-describedby="direccion-error" placeholder="Calle, número, colonia, ciudad, estado"></textarea>
+                    <div class="error-message" id="direccion-error">Por favor ingresa tu dirección completa</div>
                 </div>
                 
                 <h2 class="section-title">💼 Información Laboral</h2>
@@ -300,11 +361,12 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="ocupacion">Ocupación <span class="required">*</span></label>
-                        <input type="text" id="ocupacion" name="ocupacion" required>
+                        <input type="text" id="ocupacion" name="ocupacion" required aria-describedby="ocupacion-error" placeholder="Ej: Ingeniero, Comerciante, etc.">
+                        <div class="error-message" id="ocupacion-error">Por favor ingresa tu ocupación</div>
                     </div>
                     <div class="form-group">
                         <label for="ingresos">Ingresos Mensuales <span class="required">*</span></label>
-                        <select id="ingresos" name="ingresos" required>
+                        <select id="ingresos" name="ingresos" required aria-describedby="ingresos-error">
                             <option value="">Selecciona tu rango</option>
                             <option value="5000-10000">$5,000 - $10,000</option>
                             <option value="10000-20000">$10,000 - $20,000</option>
@@ -312,6 +374,7 @@
                             <option value="30000-50000">$30,000 - $50,000</option>
                             <option value="50000+">Más de $50,000</option>
                         </select>
+                        <div class="error-message" id="ingresos-error">Selecciona tu rango de ingresos</div>
                     </div>
                 </div>
                 
@@ -321,7 +384,7 @@
                     <label for="monto">Monto Solicitado</label>
                     <div class="amount-slider">
                         <div class="amount-display" id="amountDisplay">$10,000</div>
-                        <input type="range" id="monto" name="monto" min="5000" max="150000" value="10000" step="1000" class="slider">
+                        <input type="range" id="monto" name="monto" min="5000" max="150000" value="10000" step="1000" class="slider" aria-label="Monto del crédito">
                         <div class="slider-labels">
                             <span>$5,000</span>
                             <span>$150,000</span>
@@ -331,7 +394,7 @@
                 
                 <div class="form-group">
                     <label>¿Para qué necesitas el crédito? <span class="required">*</span></label>
-                    <div class="urgency-options">
+                    <div class="urgency-options" role="radiogroup" aria-describedby="proposito-error">
                         <div class="urgency-option">
                             <input type="radio" id="negocio" name="proposito" value="negocio" required>
                             <label for="negocio">🚀 Iniciar Negocio</label>
@@ -357,6 +420,7 @@
                             <label for="otro">📝 Otro</label>
                         </div>
                     </div>
+                    <div class="error-message" id="proposito-error">Selecciona el propósito del crédito</div>
                 </div>
                 
                 <div class="form-group">
@@ -369,71 +433,214 @@
         </div>
     </div>
 
-    <!-- EmailJS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/emailjs-com/3.2.0/email.min.js"></script>
-    
     <script>
-        // Inicializar EmailJS (CAMBIAR POR TUS DATOS)
-        emailjs.init("tjyDEjTVJaWvnQW9w"); // Reemplazar con tu Public Key de EmailJS
+        // Configuración (Reemplaza con tus datos de EmailJS)
+        const CONFIG = {
+            emailjsPublicKey: "tjyDEjTVJaWvnQW9w", // Tu Public Key
+            serviceId: "service_6e9z05o",           // Tu Service ID
+            templateId: "template_o18c6jg"          // Tu Template ID
+        };
         
-        // Slider para el monto
+        // Elementos del DOM
         const slider = document.getElementById('monto');
         const amountDisplay = document.getElementById('amountDisplay');
+        const form = document.getElementById('creditForm');
+        const submitBtn = document.querySelector('.submit-btn');
+        const successMessage = document.getElementById('successMessage');
         
-        slider.addEventListener('input', function() {
-            const amount = parseInt(this.value).toLocaleString('es-MX');
-            amountDisplay.textContent = '
-</body>
-</html> + amount;
+        // Inicializar EmailJS
+        if (typeof emailjs !== 'undefined') {
+            emailjs.init(CONFIG.emailjsPublicKey);
+        }
+        
+        // Actualizar display del monto
+        function updateAmountDisplay() {
+            const amount = parseInt(slider.value).toLocaleString('es-MX');
+            amountDisplay.textContent = '$' + amount;
+        }
+        
+        // Event listener para el slider
+        slider.addEventListener('input', updateAmountDisplay);
+        
+        // Funciones de validación
+        function validateField(field) {
+            const value = field.value.trim();
+            const fieldName = field.name;
+            let isValid = true;
+            let errorMessage = '';
+            
+            // Validaciones específicas
+            switch (fieldName) {
+                case 'nombre':
+                    isValid = value.length >= 2 && /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/.test(value);
+                    errorMessage = 'Ingresa un nombre válido (solo letras)';
+                    break;
+                    
+                case 'telefono':
+                    isValid = /^[0-9]{10}$/.test(value.replace(/\s/g, ''));
+                    errorMessage = 'Ingresa un teléfono válido de 10 dígitos';
+                    break;
+                    
+                case 'email':
+                    isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+                    errorMessage = 'Ingresa un correo electrónico válido';
+                    break;
+                    
+                case 'edad':
+                    const edad = parseInt(value);
+                    isValid = edad >= 18 && edad <= 80;
+                    errorMessage = 'La edad debe estar entre 18 y 80 años';
+                    break;
+                    
+                case 'direccion':
+                case 'ocupacion':
+                    isValid = value.length >= 5;
+                    errorMessage = `Ingresa una ${fieldName} válida (mínimo 5 caracteres)`;
+                    break;
+                    
+                case 'ingresos':
+                    isValid = value !== '';
+                    errorMessage = 'Selecciona tu rango de ingresos';
+                    break;
+            }
+            
+            // Mostrar/ocultar error
+            const errorElement = document.getElementById(fieldName + '-error');
+            if (errorElement) {
+                if (isValid) {
+                    field.classList.remove('input-error');
+                    errorElement.style.display = 'none';
+                } else {
+                    field.classList.add('input-error');
+                    errorElement.textContent = errorMessage;
+                    errorElement.style.display = 'block';
+                }
+            }
+            
+            return isValid;
+        }
+        
+        // Validar radio buttons
+        function validateRadioGroup(name) {
+            const radios = document.querySelectorAll(`input[name="${name}"]`);
+            const isValid = Array.from(radios).some(radio => radio.checked);
+            const errorElement = document.getElementById(name + '-error');
+            
+            if (errorElement) {
+                if (isValid) {
+                    errorElement.style.display = 'none';
+                } else {
+                    errorElement.style.display = 'block';
+                }
+            }
+            
+            return isValid;
+        }
+        
+        // Agregar validación en tiempo real
+        const fieldsToValidate = ['nombre', 'telefono', 'email', 'edad', 'direccion', 'ocupacion', 'ingresos'];
+        fieldsToValidate.forEach(fieldName => {
+            const field = document.getElementById(fieldName);
+            if (field) {
+                field.addEventListener('blur', () => validateField(field));
+                field.addEventListener('input', () => {
+                    if (field.classList.contains('input-error')) {
+                        validateField(field);
+                    }
+                });
+            }
         });
         
-        // Manejo del formulario
-        document.getElementById('creditForm').addEventListener('submit', function(e) {
+        // Manejar envío del formulario
+        form.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const submitBtn = document.querySelector('.submit-btn');
-            const originalText = submitBtn.textContent;
+            // Validar todos los campos
+            let isFormValid = true;
             
-            // Cambiar botón a "enviando"
+            fieldsToValidate.forEach(fieldName => {
+                const field = document.getElementById(fieldName);
+                if (field && field.hasAttribute('required')) {
+                    if (!validateField(field)) {
+                        isFormValid = false;
+                    }
+                }
+            });
+            
+            // Validar radio buttons
+            if (!validateRadioGroup('proposito')) {
+                isFormValid = false;
+            }
+            
+            if (!isFormValid) {
+                alert('Por favor corrige los errores en el formulario antes de continuar.');
+                return;
+            }
+            
+            // Preparar datos para envío
+            const originalText = submitBtn.textContent;
             submitBtn.textContent = 'Enviando... ⏳';
             submitBtn.disabled = true;
             
             // Recopilar datos del formulario
-            const formData = new FormData(this);
+            const formData = new FormData(form);
             const templateParams = {};
             
             for (let [key, value] of formData.entries()) {
                 templateParams[key] = value;
             }
             
-            // Agregar el monto del slider formateado
-            templateParams.monto = '
-</body>
-</html> + parseInt(slider.value).toLocaleString('es-MX');
+            // Agregar el monto formateado
+            templateParams.monto = '$' + parseInt(slider.value).toLocaleString('es-MX');
             
-            // Enviar email usando EmailJS
-            emailjs.send(
-                'service_6e9z05o', // Reemplazar con tu Service ID
-                'template_o18c6jg', // Reemplazar con tu Template ID
-                templateParams
-            )
-            .then(function(response) {
-                console.log('Email enviado exitosamente!', response.status, response.text);
-                alert('¡Solicitud enviada exitosamente! Te contactaremos en las próximas 24 horas.');
-                document.getElementById('creditForm').reset();
-                amountDisplay.textContent = '$10,000';
-                slider.value = 10000;
-            })
-            .catch(function(error) {
-                console.error('Error al enviar email:', error);
-                alert('Hubo un error al enviar la solicitud. Por favor intenta de nuevo o contáctanos por WhatsApp.');
-            })
-            .finally(function() {
-                // Restaurar botón
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
-            });
+            // Simular envío (reemplazar con EmailJS real)
+            setTimeout(() => {
+                // Aquí iría el código real de EmailJS
+                if (typeof emailjs !== 'undefined') {
+                    emailjs.send(CONFIG.serviceId, CONFIG.templateId, templateParams)
+                        .then(function(response) {
+                            console.log('Email enviado exitosamente!', response);
+                            showSuccess();
+                        })
+                        .catch(function(error) {
+                            console.error('Error al enviar email:', error);
+                            alert('Hubo un error al enviar la solicitud. Por favor intenta de nuevo.');
+                        })
+                        .finally(() => {
+                            submitBtn.textContent = originalText;
+                            submitBtn.disabled = false;
+                        });
+                } else {
+                    // Simulación para demo (sin EmailJS)
+                    console.log('Datos que se enviarían:', templateParams);
+                    showSuccess();
+                    submitBtn.textContent = originalText;
+                    submitBtn.disabled = false;
+                }
+            }, 2000);
         });
+        
+        // Mostrar mensaje de éxito
+        function showSuccess() {
+            successMessage.style.display = 'block';
+            form.style.display = 'none';
+            
+            // Scroll hacia el mensaje
+            successMessage.scrollIntoView({ behavior: 'smooth' });
+            
+            // Opcional: resetear formulario después de un tiempo
+            setTimeout(() => {
+                form.reset();
+                updateAmountDisplay();
+                // Limpiar errores
+                document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+                document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+                
+                // Mostrar formulario nuevamente
+                form.style.display = 'block';
+                successMessage.style.display = 'none';
+            }, 5000);
+        }
     </script>
 </body>
 </html>
