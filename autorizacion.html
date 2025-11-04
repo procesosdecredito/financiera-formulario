@@ -397,28 +397,6 @@
             font-size: 14px;
             color: #666;
         }
-
-        .config-note {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        .config-note strong {
-            color: #856404;
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        .config-note code {
-            background: white;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: monospace;
-            color: #d63384;
-        }
     </style>
 </head>
 <body>
@@ -430,12 +408,6 @@
         </div>
 
         <div class="content">
-            <!-- Nota de Configuración -->
-            <div class="config-note">
-                <strong>⚙️ Configuración Requerida:</strong>
-                Reemplaza la URL del Web App en el script de abajo (busca <code>GOOGLE_SCRIPT_URL</code>) con tu URL de Google Apps Script.
-            </div>
-
             <!-- Formulario de Consulta -->
             <div class="form-section" id="loginForm">
                 <div class="loading" id="loadingMsg">⏳ Consultando información...</div>
@@ -592,8 +564,8 @@
     </div>
 
     <script>
-        // ⚠️ IMPORTANTE: Reemplaza esta URL con la URL de tu Google Apps Script
-        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2ABVygRURq_SQwC0Ba1Lguf38vIdvxeWOh2C9CtYFvoynN1VyTc4d3Lx3qvMOXn2VGQ/exec';
+        // URL configurada de Google Apps Script
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxsZYckLgRNazxDIpWKLN3svBwfuceO0iRzgimPbbTxeNE37pP3yytQcDK8icmdFt0W1A/exec';
 
         async function consultarSolicitud() {
             const clientNumber = document.getElementById('clientNumber').value.trim();
@@ -604,14 +576,6 @@
 
             if (!clientNumber || !solicitudNumber) {
                 errorMsg.textContent = '⚠️ Por favor ingresa todos los datos';
-                errorMsg.style.display = 'block';
-                loadingMsg.style.display = 'none';
-                return;
-            }
-
-            // Validar que se haya configurado la URL
-            if (GOOGLE_SCRIPT_URL === 'TU_URL_DE_GOOGLE_SCRIPT_AQUI') {
-                errorMsg.textContent = '⚠️ Error: Debes configurar la URL de Google Apps Script en el código';
                 errorMsg.style.display = 'block';
                 loadingMsg.style.display = 'none';
                 return;
@@ -708,4 +672,32 @@
                     div.innerHTML = `
                         <div class="timeline-content">
                             <div class="timeline-date">${item.fecha}</div>
-                            <div class="timeline-
+                            <div class="timeline-title">${item.titulo}</div>
+                            <div class="timeline-desc">${item.desc}</div>
+                        </div>
+                    `;
+                    timeline.appendChild(div);
+                });
+            }
+        }
+
+        function volverAlInicio() {
+            document.getElementById('loginForm').style.display = 'block';
+            document.getElementById('detailsSection').style.display = 'none';
+            document.getElementById('clientNumber').value = '';
+            document.getElementById('solicitudNumber').value = '';
+        }
+
+        function formatMoney(amount) {
+            return '$' + amount.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        // Enter para consultar
+        document.getElementById('solicitudNumber').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                consultarSolicitud();
+            }
+        });
+    </script>
+</body>
+</html>
