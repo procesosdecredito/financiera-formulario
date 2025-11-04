@@ -110,9 +110,14 @@
             transition: transform 0.2s;
         }
 
-        .btn:hover {
+        .btn:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
         }
 
         .btn-secondary {
@@ -128,6 +133,17 @@
             color: #c33;
             margin-bottom: 20px;
             display: none;
+        }
+
+        .loading {
+            background: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 12px;
+            border-radius: 4px;
+            color: #0d47a1;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
         }
 
         .status-card {
@@ -381,6 +397,28 @@
             font-size: 14px;
             color: #666;
         }
+
+        .config-note {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .config-note strong {
+            color: #856404;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .config-note code {
+            background: white;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            color: #d63384;
+        }
     </style>
 </head>
 <body>
@@ -392,8 +430,15 @@
         </div>
 
         <div class="content">
+            <!-- Nota de Configuración -->
+            <div class="config-note">
+                <strong>⚙️ Configuración Requerida:</strong>
+                Reemplaza la URL del Web App en el script de abajo (busca <code>GOOGLE_SCRIPT_URL</code>) con tu URL de Google Apps Script.
+            </div>
+
             <!-- Formulario de Consulta -->
             <div class="form-section" id="loginForm">
+                <div class="loading" id="loadingMsg">⏳ Consultando información...</div>
                 <div class="error" id="errorMsg"></div>
                 
                 <div class="form-group">
@@ -406,7 +451,7 @@
                     <input type="text" id="solicitudNumber" placeholder="Ej: SOL-2024-001" required>
                 </div>
 
-                <button class="btn" onclick="consultarSolicitud()">Consultar Estado</button>
+                <button class="btn" id="consultarBtn" onclick="consultarSolicitud()">Consultar Estado</button>
             </div>
 
             <!-- Sección de Detalles -->
@@ -447,7 +492,7 @@
                     </div>
                 </div>
 
-                <!-- Sección de Aprobación (solo si está aprobado) -->
+                <!-- Sección de Aprobación -->
                 <div id="approvedSection" style="display: none;">
                     <div class="alert-box success">
                         <div class="alert-title">🎉 ¡Felicidades!</div>
@@ -528,7 +573,7 @@
                     <div class="section-title">📋 Motivos de Denegación</div>
                     <div class="info-box">
                         <label>Razones</label>
-                        <div class="value" style="font-size: 16px; line-height: 1.6;" id="motivosDenegacion"></div>
+                        <div class="value" style="font-size: 16px; line-height: 1.6; white-space: pre-line;" id="motivosDenegacion"></div>
                     </div>
 
                     <div class="alert-box warning">
@@ -547,96 +592,60 @@
     </div>
 
     <script>
-        // Base de datos de ejemplo
-        const solicitudesDB = {
-            '12345-SOL-2024-001': {
-                numeroCliente: '12345',
-                numeroSolicitud: 'SOL-2024-001',
-                nombreCliente: 'Juan Pérez García',
-                montoSolicitado: 150000,
-                proposito: 'Capital de Trabajo',
-                plazo: 24,
-                fechaSolicitud: '15/10/2024',
-                estado: 'aprobado',
-                // Datos de aprobación
-                montoAprobado: 150000,
-                comisionApertura: 4500,
-                porcentajeComision: 3,
-                tasaInteres: 12.5,
-                pagoMensual: 7245,
-                fechaPrimerPago: '15/12/2024',
-                ejecutivo: 'Lic. María González',
-                timeline: [
-                    { fecha: '15/10/2024', titulo: 'Solicitud Recibida', desc: 'Se recibió tu solicitud de crédito', completado: true },
-                    { fecha: '17/10/2024', titulo: 'Análisis de Crédito', desc: 'Revisión de historial crediticio y capacidad de pago', completado: true },
-                    { fecha: '20/10/2024', titulo: 'Evaluación Completada', desc: 'Se completó el análisis y evaluación de riesgo', completado: true },
-                    { fecha: '22/10/2024', titulo: 'Crédito Aprobado', desc: 'Tu crédito fue aprobado por el comité', completado: true }
-                ]
-            },
-            '67890-SOL-2024-002': {
-                numeroCliente: '67890',
-                numeroSolicitud: 'SOL-2024-002',
-                nombreCliente: 'María González López',
-                montoSolicitado: 200000,
-                proposito: 'Expansión de Negocio',
-                plazo: 36,
-                fechaSolicitud: '20/10/2024',
-                estado: 'aprobado',
-                montoAprobado: 180000,
-                comisionApertura: 5400,
-                porcentajeComision: 3,
-                tasaInteres: 11.0,
-                pagoMensual: 5900,
-                fechaPrimerPago: '20/12/2024',
-                ejecutivo: 'Lic. Carlos Ramírez',
-                timeline: [
-                    { fecha: '20/10/2024', titulo: 'Solicitud Recibida', desc: 'Se recibió tu solicitud de crédito', completado: true },
-                    { fecha: '22/10/2024', titulo: 'Análisis de Crédito', desc: 'Revisión de historial crediticio y capacidad de pago', completado: true },
-                    { fecha: '25/10/2024', titulo: 'Evaluación Completada', desc: 'Se completó el análisis y evaluación de riesgo', completado: true },
-                    { fecha: '28/10/2024', titulo: 'Crédito Aprobado', desc: 'Tu crédito fue aprobado con ajuste de monto', completado: true }
-                ]
-            },
-            '11111-SOL-2024-003': {
-                numeroCliente: '11111',
-                numeroSolicitud: 'SOL-2024-003',
-                nombreCliente: 'Roberto Sánchez Ruiz',
-                montoSolicitado: 300000,
-                proposito: 'Compra de Equipo',
-                plazo: 48,
-                fechaSolicitud: '25/10/2024',
-                estado: 'denegado',
-                motivosDenegacion: '• Historial crediticio insuficiente\n• Relación deuda-ingreso elevada\n• Antigüedad laboral menor a 2 años',
-                timeline: [
-                    { fecha: '25/10/2024', titulo: 'Solicitud Recibida', desc: 'Se recibió tu solicitud de crédito', completado: true },
-                    { fecha: '27/10/2024', titulo: 'Análisis de Crédito', desc: 'Revisión de historial crediticio y capacidad de pago', completado: true },
-                    { fecha: '30/10/2024', titulo: 'Evaluación Completada', desc: 'Se completó el análisis y evaluación de riesgo', completado: true },
-                    { fecha: '01/11/2024', titulo: 'Solicitud Denegada', desc: 'El comité determinó no aprobar el crédito', completado: true }
-                ]
-            }
-        };
+        // ⚠️ IMPORTANTE: Reemplaza esta URL con la URL de tu Google Apps Script
+        const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw2ABVygRURq_SQwC0Ba1Lguf38vIdvxeWOh2C9CtYFvoynN1VyTc4d3Lx3qvMOXn2VGQ/exec';
 
-        function consultarSolicitud() {
+        async function consultarSolicitud() {
             const clientNumber = document.getElementById('clientNumber').value.trim();
             const solicitudNumber = document.getElementById('solicitudNumber').value.trim();
             const errorMsg = document.getElementById('errorMsg');
+            const loadingMsg = document.getElementById('loadingMsg');
+            const consultarBtn = document.getElementById('consultarBtn');
 
             if (!clientNumber || !solicitudNumber) {
                 errorMsg.textContent = '⚠️ Por favor ingresa todos los datos';
                 errorMsg.style.display = 'block';
+                loadingMsg.style.display = 'none';
                 return;
             }
 
-            const key = `${clientNumber}-${solicitudNumber}`;
-            const solicitud = solicitudesDB[key];
-
-            if (!solicitud) {
-                errorMsg.textContent = '❌ No se encontró la solicitud. Verifica tus datos.';
+            // Validar que se haya configurado la URL
+            if (GOOGLE_SCRIPT_URL === 'TU_URL_DE_GOOGLE_SCRIPT_AQUI') {
+                errorMsg.textContent = '⚠️ Error: Debes configurar la URL de Google Apps Script en el código';
                 errorMsg.style.display = 'block';
+                loadingMsg.style.display = 'none';
                 return;
             }
 
+            // Mostrar loading
             errorMsg.style.display = 'none';
-            mostrarDetalles(solicitud);
+            loadingMsg.style.display = 'block';
+            consultarBtn.disabled = true;
+
+            try {
+                const url = `${GOOGLE_SCRIPT_URL}?clientNumber=${encodeURIComponent(clientNumber)}&solicitudNumber=${encodeURIComponent(solicitudNumber)}`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+
+                loadingMsg.style.display = 'none';
+                consultarBtn.disabled = false;
+
+                if (data.error) {
+                    errorMsg.textContent = '❌ ' + data.error;
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+
+                mostrarDetalles(data);
+
+            } catch (error) {
+                loadingMsg.style.display = 'none';
+                consultarBtn.disabled = false;
+                errorMsg.textContent = '❌ Error al consultar. Verifica tu conexión o la configuración del script.';
+                errorMsg.style.display = 'block';
+                console.error('Error:', error);
+            }
         }
 
         function mostrarDetalles(solicitud) {
@@ -686,43 +695,17 @@
 
             // Datos de denegación
             if (solicitud.estado === 'denegado') {
-                document.getElementById('motivosDenegacion').textContent = solicitud.motivosDenegacion;
+                document.getElementById('motivosDenegacion').textContent = solicitud.motivosDenegacion || 'No especificado';
             }
 
             // Timeline
             const timeline = document.getElementById('timeline');
             timeline.innerHTML = '';
-            solicitud.timeline.forEach(item => {
-                const div = document.createElement('div');
-                div.className = `timeline-item ${item.completado ? 'completed' : ''}`;
-                div.innerHTML = `
-                    <div class="timeline-content">
-                        <div class="timeline-date">${item.fecha}</div>
-                        <div class="timeline-title">${item.titulo}</div>
-                        <div class="timeline-desc">${item.desc}</div>
-                    </div>
-                `;
-                timeline.appendChild(div);
-            });
-        }
-
-        function volverAlInicio() {
-            document.getElementById('loginForm').style.display = 'block';
-            document.getElementById('detailsSection').style.display = 'none';
-            document.getElementById('clientNumber').value = '';
-            document.getElementById('solicitudNumber').value = '';
-        }
-
-        function formatMoney(amount) {
-            return '$' + amount.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        }
-
-        // Enter para consultar
-        document.getElementById('solicitudNumber').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                consultarSolicitud();
-            }
-        });
-    </script>
-</body>
-</html>
+            if (solicitud.timeline && solicitud.timeline.length > 0) {
+                solicitud.timeline.forEach(item => {
+                    const div = document.createElement('div');
+                    div.className = `timeline-item ${item.completado ? 'completed' : ''}`;
+                    div.innerHTML = `
+                        <div class="timeline-content">
+                            <div class="timeline-date">${item.fecha}</div>
+                            <div class="timeline-
